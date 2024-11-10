@@ -256,7 +256,7 @@ MonoBehaviour:
   LevelScriptable:
   - {fileID: 11400000, guid: ffc9457de07290a47a240cdc8f1e9562, type: 2}
   - {fileID: 11400000, guid: 9b8a8c129ee2cd443874a6e0f48aa9a2, type: 2}
-  LevelToLoad: {fileID: 11400000, guid: ffc9457de07290a47a240cdc8f1e9562, type: 2}
+  LevelToLoad: {fileID: 11400000, guid: 9b8a8c129ee2cd443874a6e0f48aa9a2, type: 2}
   armprefab:
   - {fileID: 5962694559308062746, guid: c8fe2b70009b05d47a5415cd4321d313, type: 3}
   - {fileID: 5962694559308062746, guid: dabf35a752972ee46a06f2409d3aede7, type: 3}
@@ -264,8 +264,8 @@ MonoBehaviour:
   - {fileID: 3916465107993833772, guid: ea7b27e1cb2570b4d991e68a8307e0c4, type: 3}
   - {fileID: 3916465107993833772, guid: 5fdcc446b99419449beb3e35ec2ed91e, type: 3}
   - {fileID: 3916465107993833772, guid: 0c1f2c4d84c079943ad0eda6723ef0fa, type: 3}
-  MaxMove: 1203
-  ActualMove: 6
+  MaxMove: 30
+  ActualMove: 0
 --- !u!4 &725344419
 Transform:
   m_ObjectHideFlags: 0
@@ -360,7 +360,7 @@ Transform:
   m_GameObject: {fileID: 2051223400}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 15.34, y: -11.03, z: -10}
+  m_LocalPosition: {x: 15.77, y: -10.39, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

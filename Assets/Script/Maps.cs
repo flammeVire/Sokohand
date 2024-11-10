@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu]
 public class Maps : ScriptableObject
 {
-    [TextArea(maxLines: 100, minLines: 10)] public string Level1;
+    [TextArea(maxLines: 10, minLines: 10)] public string Level1;
 
     public int MaxMovement;
 

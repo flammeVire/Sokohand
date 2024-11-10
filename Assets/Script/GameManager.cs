@@ -87,6 +87,9 @@ public class GameManager : MonoBehaviour
                     case 'O':
                         board[row,col] = Tiles.TileType.Oil;
                         break;
+                    case 'A':
+                        board[row,col] = Tiles.TileType.Button_Actif;
+                        break;  
                 }
             }
         }
@@ -142,7 +145,7 @@ public class GameManager : MonoBehaviour
                 else if (board[row, col] == Tiles.TileType.Arm)    // bras
                 {
                     Vector2Int coord = new Vector2Int(col, row);
-                    Debug.Log("coord hand index " + GetArmByCoord(coord) +" ==" + coord);
+                    //Debug.Log("coord hand index " + GetArmByCoord(coord) +" ==" + coord);
                     
                     Instantiate(
                         ArmVisuals(HandCoord[GetArmByCoord(coord)].arm),
@@ -290,12 +293,7 @@ public class GameManager : MonoBehaviour
         {
             index += IndexWanted;
         }
-        
-
         return index;
-
-
-
     }
 
     public int GetArmByCoord(Vector2Int Coord)
@@ -305,12 +303,12 @@ public class GameManager : MonoBehaviour
         {
             if (HandCoord[i].coord == Coord)
             {
-                Debug.Log("Index Found By Coord");
+                //Debug.Log("Index Found By Coord");
                 index = i;
                 break;
             }
         }
-        Debug.Log ("Index wanted by coord ==" + index + "Coord == " +Coord);
+        //Debug.Log ("Index wanted by coord ==" + index + "Coord == " +Coord);
         return index;
     }
     #endregion

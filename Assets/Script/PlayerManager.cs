@@ -4,7 +4,7 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField] private GameManager gameManager;
     public Vector2Int position { get; private set; }
-
+    private Vector2Int InputDirection = new Vector2Int(0,0);
     public void SpawnOnMap(Vector2Int startPosition)
     {
         position = startPosition;
@@ -14,16 +14,24 @@ public class PlayerManager : MonoBehaviour
     private void Update()
     {
         Vector2Int desiredPosition = position;
+        if (gameManager.board[position.y, position.x] == Tiles.TileType.Oil)
+        {
+            desiredPosition = new Vector2Int(position.x + InputDirection.x, position.y + InputDirection.y);
+            PlayerOnOil(desiredPosition);
+        }
 
+        
+        InputDirection = new Vector2Int(0, 0);
         if (Input.GetKeyDown(KeyCode.UpArrow))
-            desiredPosition = new Vector2Int(position.x, position.y - 1);
+            InputDirection = new Vector2Int(0, - 1);
         else if (Input.GetKeyDown(KeyCode.DownArrow))
-            desiredPosition = new Vector2Int(position.x, position.y + 1);
+            InputDirection = new Vector2Int(0, + 1);
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
-            desiredPosition = new Vector2Int(position.x - 1, position.y);
+            InputDirection = new Vector2Int(-1,0);
         else if (Input.GetKeyDown(KeyCode.RightArrow))
-            desiredPosition = new Vector2Int(position.x + 1, position.y);
+            InputDirection = new Vector2Int( + 1, 0);
 
+        desiredPosition = new Vector2Int (position.x + InputDirection.x, position.y+InputDirection.y);
         if (desiredPosition != position)
         {
             //si joueur arrivera dans la zone de jeu
@@ -105,24 +113,25 @@ public class PlayerManager : MonoBehaviour
                 //si joueur arrivera sur de l'huile
                 else if(gameManager.board[desiredPosition.y,desiredPosition.x] == Tiles.TileType.Oil)
                 {
-                    PlayerOnOil(desiredPosition,desiredPosition);
+                    PlayerOnOil(desiredPosition);
                 }
 
                 gameManager.UpdateVisuals();
             }
         }
+
+        
     }
 
-    private void PlayerOnOil(Vector2Int desiredPosition, Vector2Int deplacementAxis)
+    private void PlayerOnOil(Vector2Int desiredPosition)
     {
-        Debug.Log("Player on oil");
-        if (gameManager.board[desiredPosition.y,desiredPosition.x] == Tiles.TileType.Oil)
-        {
-            //si sur de l'huile
-            //calcule la direction ou on avancer de base
-            //nous fait avancer
-            //remplace la tuile precedente par un last_arm
-            //recalcule 
-        }
+        Debug.Log("player is on oil");
+        gameManager.ActualMove++;
+        gameManager.HandManagement(position, gameManager.board[position.y, position.x], true);  //ajoute la main et l'ancienne tuile
+        gameManager.board[position.y, position.x] = Tiles.TileType.Arm_Last;
+        position = desiredPosition;
+        transform.position = new Vector2(position.x, -position.y);
+        
+
     }
 }
