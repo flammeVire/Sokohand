@@ -9,5 +9,7 @@ public class Maps : ScriptableObject
 
     public int MaxMovement;
 
+    public int GoodJobMovement;
+
 }
 

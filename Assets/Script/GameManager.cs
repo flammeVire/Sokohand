@@ -10,36 +10,67 @@ public class GameManager : MonoBehaviour
     public Maps[] LevelScriptable;
     public Tiles.TileType[,] board { get; private set; }
     public Maps LevelToLoad;
-    [SerializeField] GameObject[] armprefab;
+    public int LevelToLoadIndex = 0;
+    [SerializeField] public GameObject[] armprefab;
+    [SerializeField] UIManager uiManager;
 
+    public bool Running;
+
+    public int ButtonInGame;
+    public int ButtonActifInGame;
+
+    bool ActualLevelJob = true;
     public int MaxMove;
     public int ActualMove;
+    public int GlobalMove;
     private Coroutine countMove;
+    private Coroutine JobMove;
     public List<Hand> HandCoord { get; private set; } = new List<Hand>();
 
     #region gestion de la partie
     public void EndChecker()
     {
+        
         for (int row = 0; row < 10; row++)
         {
             for (int col = 0; col < 10; col++)
             {
                 if (board[row, col] == Tiles.TileType.Button)
                 {
-                    return;
+                    
+                        return;
+                    
                 }
             }
         }
-        Debug.Log("FINI");
-        StopCoroutine(countMove);
+        if (ButtonActifInGame == ButtonInGame)
+        {
+            Debug.Log("FINI");
+            StopCoroutine(countMove);
+            StopCoroutine(JobMove);
+            uiManager.ApplyJobToMenu(LevelToLoadIndex, ActualLevelJob);
+            if (LevelToLoadIndex <= 5)
+            {
+                LevelToLoadIndex += 1;
+                LevelToLoad = ChangeMapsByIndex(LevelToLoadIndex);
+                StartCoroutine(EndOfLevel());
+            }
+            else
+            {
+                LevelToLoadIndex = 0;
+                LevelToLoad = ChangeMapsByIndex(LevelToLoadIndex);
+                StartCoroutine(EndOfLevel());
+            }
+        }
     }
 
-
-    private void Start()
+    IEnumerator EndOfLevel()
     {
+        Running = false;
+        yield return new WaitForSeconds(0.5f);
         LoadLevel(LevelToLoad);
+        Running = true;
     }
-
     IEnumerator CountMove(Maps LoadedLevel) 
     {
         yield return new WaitUntil(() => ActualMove > MaxMove);
@@ -47,15 +78,51 @@ public class GameManager : MonoBehaviour
 
         LoadLevel(LoadedLevel);
     }
+
+    IEnumerator GoodJobCount()
+    {
+        yield return new WaitUntil(()=> GlobalMove >= LevelToLoad.GoodJobMovement+1);
+        Debug.Log("Bad Job");
+        ActualLevelJob = false;
+        uiManager.BadJobMovement();
+    }
+
+
+    public Maps ChangeMapsByIndex(int index)
+    {
+        LevelToLoadIndex = index;
+        Maps level = LevelToLoad;
+        if (index >= 6) 
+        {
+            LevelToLoadIndex = 0;
+            return LevelScriptable[0];
+        }
+        for (int i = 0; i < LevelScriptable.Length; i++)
+        {
+            if(LevelScriptable[i] == LevelScriptable[index])
+            {
+                level = LevelScriptable[i];
+            }
+        }
+        return level;
+    }
     #endregion
     #region boardManagement
     public void LoadLevel(Maps loadedLevel)
     {
-        countMove = StartCoroutine(CountMove(loadedLevel));
+        uiManager.LevelText();
+        
+        ActualLevelJob = true;
         MaxMove = loadedLevel.MaxMovement;
         HandCoord.Clear();
-        
+
+        ButtonInGame = 0;
+        ButtonActifInGame = 0;
         ActualMove = 0;
+        GlobalMove = 0;
+        uiManager.ResetGoodJob();
+
+        
         board = new Tiles.TileType[10, 10];
         string level = loadedLevel.Level1;
         string[] levelLines = level.Split('\n');
@@ -83,40 +150,51 @@ public class GameManager : MonoBehaviour
                         break;
                     case '#':
                         board[row, col] = Tiles.TileType.Button;
+                        ButtonInGame += 1;
                         break;
                     case 'O':
                         board[row,col] = Tiles.TileType.Oil;
                         break;
                     case 'A':
                         board[row,col] = Tiles.TileType.Button_Actif;
+                        ButtonInGame += 1;
+                        ButtonActifInGame += 1;
+
                         break;  
                 }
             }
         }
-
+        
 
         UpdateVisuals();
+        countMove = StartCoroutine(CountMove(loadedLevel));
+        JobMove = StartCoroutine(GoodJobCount());
+        
     }
-
     public void UpdateVisuals()
     {
-        foreach (Transform childTransform in transform)
-            Destroy(childTransform.gameObject);
+        DestroyChild();
 
         for (int row = 0; row < 10; row++)
         {
             for (int col = 0; col < 10; col++)
             {
+
                 if (board[row, col] == Tiles.TileType.Wall) //mur
+                {
                     Instantiate(tilesprefab[0],
                         new Vector2(col, -row),
                         Quaternion.identity,
                         transform);
+                }
                 else if (board[row, col] == Tiles.TileType.Box) //boite
+                {
                     Instantiate(tilesprefab[2],
                         new Vector2(col, -row),
                         Quaternion.identity,
                         transform);
+
+                }
                 else if (board[row, col] == Tiles.TileType.Button)  //bouton
                 {
                     Instantiate(tilesprefab[3],
@@ -130,10 +208,9 @@ public class GameManager : MonoBehaviour
                     new Vector2(col, -row),
                     Quaternion.identity,
                     transform);
-
                 }
 
-                else if (board[row,col] == Tiles.TileType.Oil)  //huile
+                else if (board[row, col] == Tiles.TileType.Oil)  //huile
                 {
                     Instantiate(tilesprefab[7],
                     new Vector2(col, -row),
@@ -146,7 +223,7 @@ public class GameManager : MonoBehaviour
                 {
                     Vector2Int coord = new Vector2Int(col, row);
                     //Debug.Log("coord hand index " + GetArmByCoord(coord) +" ==" + coord);
-                    
+
                     Instantiate(
                         ArmVisuals(HandCoord[GetArmByCoord(coord)].arm),
                     new Vector2(col, -row),
@@ -159,18 +236,15 @@ public class GameManager : MonoBehaviour
                 else if (board[row, col] == Tiles.TileType.Arm_Last)    // dernier bras posé
                 {
                     Tiles.ArmType last_ArmType = HandTiles.Coude(HandCoord[GetLastArmIndex(-1)].coord, player.GetComponent<PlayerManager>().position, HandCoord[GetLastArmIndex(0)].coord);
-                    
+
                     Instantiate(
 
                         ArmVisuals(last_ArmType)
-
-
-
-                        , new Vector2(col,-row)
+                        , new Vector2(col, -row)
                         , Quaternion.identity
                         , transform);
-                    
-                    Last_HandAddTiles(last_ArmType,GetLastArmIndex(0));
+
+                    Last_HandAddTiles(last_ArmType, GetLastArmIndex(0));
                 }
 
                 else        // sol
@@ -183,8 +257,14 @@ public class GameManager : MonoBehaviour
                    
             }
         }
+        uiManager.ChangeUI();
     }
 
+    public void DestroyChild()
+    {
+        foreach (Transform childTransform in transform)
+            Destroy(childTransform.gameObject);
+    }
     #endregion
     #region Hand
 

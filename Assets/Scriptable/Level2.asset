@@ -12,23 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4705537d431e368479d8fbca70f331bb, type: 3}
   m_Name: Level2
   m_EditorClassIdentifier: 
-  Level1: 'FFFFFFFFFF
+  Level1: 'FWWFFFWWFF
 
     FFFFFFFFFF
 
-    FFSFFFFFFF
+    FFFFFFFFWF
+
+    WWFWWAWWFB
+
+    FFFFWFFWFF
+
+    FFFW#WFWWF
+
+    FWFWFBFFFS
+
+    FWFFFWWWWW
 
     FFFFFFFFFF
 
-    FFFFFFFFFF
+    FFFWWFFFFF
 
-    FFFFFOFFFF
-
-    FFFOOOFFFF
-
-    FFFFFFFFFF
-
-    FFFFFFFFFF
-
-    FFFFFFFFFF'
-  MaxMovement: 100
+'
+  MaxMovement: 35
+  GoodJobMovement: 38
